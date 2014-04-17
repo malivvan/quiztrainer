@@ -1,6 +1,6 @@
 all: quiztrainer
 
 quiztrainer: 
-	g++ -o quiztrainer quiztrainer.cpp
+	@g++ -static -o quiztrainer quiztrainer.cpp
 clean:
-	rm -f quiztrainer
+	@rm -f quiztrainer
