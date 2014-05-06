@@ -2,6 +2,7 @@
 #include <fstream>
 #include <string>
 #include <algorithm>
+#include <time.h>
 
 using namespace std;
 
@@ -25,8 +26,7 @@ struct questions {
 };
 
 // gibt den Pointer auf eine Fragestruktur zurueck
-question* new_question(char *c)
-{
+question* new_question(char *c){
 	question *q;	 		// deklariere eine frage q
 	q = new question;	 	// beziehe Speicher fuer die Fragestruktur
 	q->c = new char[sizeof(c)];	// beziehe Speicher fuer die Frage
@@ -128,15 +128,41 @@ questions* read_questions(char *name, char *path)
 }
 
 
+int ask(question *q)
+{
+	int answer;
+	int r;
+	int c;
+	
+	r = rand() % 4; // Zufallszahl zw. 0-3
+	
+	cout << q->c << endl;
+	
+	// Positionierung der richtigen Antwort aufgrund der Zufallszahl
+	for(c = 0 ; c < 5 ; c++) {
+		if (c==1) cout << q->o2 << endl;
+		if (c==2) cout << q->o3 << endl;
+		if (c==3) cout << q->o4 << endl;
+		if (c==r) cout << q->o1 << endl;
+	}
+	
+	cin >> answer;
+	
+	if(answer == r+1) return 1;	
+	return 0;
+}
+
 int main()
 {
 	questions *qs;
 	question *q;
 	qs = read_questions("Computerspiele","./db/Computerspiele");
-
+	srand( (unsigned)time( NULL ) );  //Initialisierung mit der Systemzeit
+	ask(qs->first->next);	
+	
 	int c;
 
-	if (qs != 0){
+/*	if (qs != 0){
 		//cout << qs->t << endl;
 		q = qs->first;
 		while(true){
@@ -148,7 +174,6 @@ int main()
 			}
 		} 
 	}
-
-	getchar();
+*/
 	return 0;
 }
