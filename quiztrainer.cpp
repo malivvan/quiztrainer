@@ -152,6 +152,40 @@ int ask(question *q)
 	return 0;
 }
 
+/* dynamic random sequence of c lenght made of an amount a */
+size_t *randSequence(size_t c, size_t a)
+{
+	// r = array for the random sequence
+	// x = random number
+	
+	size_t *r;
+	size_t x;
+	
+	// a = write cursor for random sequence
+	// b = check cursor for random sequence
+	size_t a;
+	size_t b;
+	
+	// d = done indicator
+	int d;
+	
+	// initialize random sequence
+	r = new size_t[sizeof(size_t)*c];
+	
+	for(a = 0; a < c ; a++){
+		d = 0;
+		x = rand() % a;
+		
+		do {
+			for(b = 0; b < a; b++){
+				if (c
+			}
+		} while(d); 
+	}
+	
+	return r;
+}
+
 int main()
 {
 	questions *qs;
