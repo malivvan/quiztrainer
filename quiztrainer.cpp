@@ -11,11 +11,11 @@ using namespace std;
  */
 typedef struct question question;
 struct question {
-	char *c;	// question
-	char *o1;	// right answer
-	char *o2;	// wrong answer
-	char *o3;	// wrong answer
-	char *o4;	// wrong answer
+	char *qustn;	// question
+	char *a1;	// right answer
+	char *a2;	// wrong answer
+	char *a3;	// wrong answer
+	char *a4;	// wrong answer
 	question *next;
 };
 
@@ -77,7 +77,7 @@ questions* readQuestions(char *name, char *path)
 	string line;		// line
    	ifstream infile;	// infile pointer
 
-   	MAXSIZE = 2048;
+   	MAXSIZE = 1024;
 	l = new char[MAXSIZE];
 	tmp = new char[MAXSIZE];
 
@@ -93,26 +93,26 @@ questions* readQuestions(char *name, char *path)
 		if(count(line.begin(), line.end(), '|') != 4) continue;
 		strncpy(l, line.c_str(), MAXSIZE);
 		q = new question;
-
+		
 		tmp = strtok(l, "|");
-		q->c = new char[strlen(tmp)];
-		strncpy(q->c, tmp, strlen(tmp));
+		q->qustn = new char[MAXSIZE];
+		strncpy(q->qustn, tmp, MAXSIZE);	
+		
+		tmp = strtok(NULL, "|");
+		q->a1 = new char[MAXSIZE];
+		strncpy(q->a1, tmp, MAXSIZE);
 
 		tmp = strtok(NULL, "|");
-		q->o1 = new char[strlen(tmp)];
-		strncpy(q->o1, tmp, strlen(tmp));
+		q->a2 = new char[MAXSIZE];
+		strncpy(q->a2, tmp, MAXSIZE);
 
 		tmp = strtok(NULL, "|");
-		q->o2 = new char[strlen(tmp)];
-		strncpy(q->o2, tmp, strlen(tmp));
+		q->a3 = new char[MAXSIZE];
+		strncpy(q->a3, tmp, MAXSIZE);
 
 		tmp = strtok(NULL, "|");
-		q->o3 = new char[strlen(tmp)];
-		strncpy(q->o3, tmp, strlen(tmp));
-
-		tmp = strtok(NULL, "|");
-		q->o4 = new char[strlen(tmp)];
-		strncpy(q->o4, tmp, strlen(tmp));
+		q->a4 = new char[MAXSIZE];
+		strncpy(q->a4, tmp, MAXSIZE);
 
 		if(qs->first == 0) {
 			qs->first = q;
@@ -147,13 +147,13 @@ void cleanup(questions **qsa, size_t qsac)
 
 	for(x = 0; x < qsac; x++) {
 		q = qsa[x]->first;
-		for (y = 0; y < qsa[x]->c ; y++) {
+		for (y = 0; y < qsa[x]->c; y++) {
 			qn = q->next;
-			free(q->c);
-			free(q->o1);
-			free(q->o2);
-			free(q->o3);
-			free(q->o4);
+			free(q->qustn);
+			free(q->a1);
+			free(q->a2);
+			free(q->a3);
+			free(q->a4);
 			q = qn;
 		}
 		free(qsa[x]);
@@ -174,7 +174,7 @@ size_t ask(question *q)
 	int c;
 
 	// ask the question
-	cout << q->c << endl;
+	cout << q->qustn << endl;
 
 	// get a random sequence
 	r = randSequence(4, 4);
@@ -182,10 +182,10 @@ size_t ask(question *q)
 	// display answers
 	for(c = 0 ; c < 4 ; c++) {
 		cout << c+1 << "  ";
-		if (r[c] == 0) cout << q->o1 << endl;
-		if (r[c] == 1) cout << q->o2 << endl;
-		if (r[c] == 2) cout << q->o3 << endl;
-		if (r[c] == 3) cout << q->o4 << endl;
+		if (r[c] == 0) cout << q->a1 << endl;
+		if (r[c] == 1) cout << q->a2 << endl;
+		if (r[c] == 2) cout << q->a3 << endl;
+		if (r[c] == 3) cout << q->a4 << endl;
 	}
 
 	// free random sequence
@@ -199,7 +199,7 @@ size_t ask(question *q)
 		cout << "richtig" << endl;
 		return 1;
 	} else {
-		cout << "falsch, richtig ist: " << q->o1 << endl;
+		cout << "falsch, richtig ist: " << q->a1 << endl;
 	}
 	cout << endl;
 
