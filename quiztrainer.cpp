@@ -24,43 +24,44 @@ struct question {
  */
 typedef struct questions questions;
 struct questions {
-	char *t;	 	// topic
-	size_t c;		// count
+	char *topic;	 	// topic
+	size_t count;		// count
 	question *first;
 };
 
 /*
- * generates a non recurring random sequence of numbers up to "a" and with
- * the lenght of "c". will return 0 if c < a avoiding endless loop
+ * Generates a non recurring random sequence of numbers with the lenght "lenght" 
+ * Each number is between 0 and "max". 
+ * It returns 0 if "lenght" > "max" avoiding endless loop
  */
-size_t *randSequence(size_t c, size_t a)
+size_t *randSequence(size_t lenght, size_t max)
 {
-	size_t *r;	// array for the random sequence
-	size_t x;	// write cursor for random sequence
-	size_t y;	// check cursor for random sequence
-	short d;	// done indicator
+	size_t *array;	// array for the random sequence
+	size_t current;	// cursor for random sequence
+	size_t check;	// check cursor for random sequence
+	short done;	// done indicator
 
 	// ensure c not larger than a -> endless loop
-	if (c > a) return 0;
+	if (lenght > max) return 0;
 
 	// initialize random sequence, indicator and random source
 	srand((unsigned)time(NULL));
-	r = new size_t[c];
+	array = new size_t[lenght];
 
 	// generate random sequence
-	for(x = 0; x < c ; x++){
+	for(current = 0; current < lenght ; current++){
 		do {
-			d = 0;
-			r[x] = rand() % a;
-			for(y = 0; y < x; y++) {
-				if(r[x] == r[y]){
-					d = 1;
+			done = 0;
+			array[current] = rand() % max;
+			for(check = 0; check < current; check++) {
+				if(array[current] == array[check]){
+					done = 1;
 					break;
 				}
 			}
-		} while(d);
+		} while(done);
 	}
-	return r;
+	return array;
 }
 
 /*
@@ -73,8 +74,8 @@ questions* readQuestions(char *name, char *path)
 	size_t MAXSIZE;		// maximal bytes that are allowed in a line
 	question *q;		// a single question
 	questions *qs;		// question catalog that will be returned
-	question *cur;		// cursor needed for linking
-	string line;		// line
+	question *cur;		// current question
+	string line;		// line in the document
    	ifstream infile;	// infile pointer
 
    	MAXSIZE = 1024;
@@ -84,9 +85,9 @@ questions* readQuestions(char *name, char *path)
 	// create and initialize question catalog
 	qs = new questions;
 	qs->first = 0;
-	qs->c = 0;
-	qs->t = name;
-
+	qs->topic = name;
+	qs->count = 0;
+	
 	// read lines of file and write them into question catalog
 	infile.open(path);
    	while(getline(infile, line)){
@@ -123,12 +124,12 @@ questions* readQuestions(char *name, char *path)
 		}
 
 		cur->next = 0;
-		qs->c++;
+		qs->count++;
 	}
    	infile.close();
 
-	// if there is not a single question just return 0
-	if (qs->c == 0){
+	// if there is not a single question -> returns 0
+	if (qs->count == 0){
 		return 0;
 	}
 
@@ -140,14 +141,14 @@ questions* readQuestions(char *name, char *path)
  */
 void cleanup(questions **qsa, size_t qsac)
 {
-	size_t x;
-	size_t y;
-	question *q;
-	question *qn;
+	size_t x;	//counter of question catalogs
+	size_t y;	//counter of question in question catalog
+	question *q;	//current question
+	question *qn;	//pointer to next question
 
 	for(x = 0; x < qsac; x++) {
 		q = qsa[x]->first;
-		for (y = 0; y < qsa[x]->c; y++) {
+		for (y = 0; y < qsa[x]->count; y++) {
 			qn = q->next;
 			free(q->qustn);
 			free(q->a1);
@@ -160,42 +161,36 @@ void cleanup(questions **qsa, size_t qsac)
 	}
 }
 
-
 /*
  * asks a question q and returns if answers was right(1) or wrong(0)
  */
 size_t ask(question *q)
 {
-	// a = answer
-	// r = random sequence
-	// c = counter
-	int a;
-	size_t *r;
-	int c;
+	int answer;	// answer of the Player
+	size_t *random_number;	
+	size_t counter;
 
-	// ask the question
+	// displays question
 	cout << q->qustn << endl;
+	
+	random_number = randSequence(4, 4);
 
-	// get a random sequence
-	r = randSequence(4, 4);
-
-	// display answers
-	for(c = 0 ; c < 4 ; c++) {
-		cout << c+1 << "  ";
-		if (r[c] == 0) cout << q->a1 << endl;
-		if (r[c] == 1) cout << q->a2 << endl;
-		if (r[c] == 2) cout << q->a3 << endl;
-		if (r[c] == 3) cout << q->a4 << endl;
+	// display answers in random adjustment
+	for(counter = 0 ; counter < 4 ; counter++) {
+		cout << counter+1 << "  ";
+		if (random_number[counter] == 0) cout << q->a1 << endl;
+		if (random_number[counter] == 1) cout << q->a2 << endl;
+		if (random_number[counter] == 2) cout << q->a3 << endl;
+		if (random_number[counter] == 3) cout << q->a4 << endl;
 	}
-
-	// free random sequence
-	free(r);
+	free(random_number);
 
 	// wait for valid response
 	cout << endl << "Bitte geben Sie eine Antwort (1-4) ein: ";
-	do { cin >> a; } while(a != 1 && a != 2 && a != 3 && a != 4);
+	do { cin >> answer; } 
+		while(answer != 1 && answer != 2 && answer != 3 && answer != 4);
 
-	if(r[a-1] == 0){
+	if(random_number[answer-1] == 0){
 		cout << "richtig" << endl;
 		return 1;
 	} else {
@@ -210,7 +205,7 @@ size_t ask(question *q)
  * training quiz mode - will return number of right answers
  *
  * qsa - all the questions
- * qsac - number of categories
+ * qsac - amount of question catalogs
  */
 size_t trainingQuiz(questions **qsa, size_t qsac)
 {
@@ -220,73 +215,75 @@ size_t trainingQuiz(questions **qsa, size_t qsac)
 
 /*
  * random quiz mode - will return number of right answers - will adjust cc and
- * cq if numbers are to high and there are not enough questions or categories
+ * cq if numbers are to high and there are not enough questions or question catalogs
  *
- * qsa - all the questions
- * qsac - number of categories
- * cc - number of categories to use
- * cq - number of questions of a categorie to ask
+ * qsa - all the question catalogs
+ * qsac - amount of question catalogs
+ * cc - amount of question catalogs to use (set by Player)
+ * cq - amount of questions of a question catalog to ask (set by Player) 
  */
-size_t randQuiz(questions **qsa, size_t qsac, size_t cc, size_t cq)
+size_t randQuiz(questions **qsa, size_t qsac)
 {
-	size_t *ccr;	// random sequence of categories
-	size_t *cqr;	// random sequence of questions
-	question *q;	// tmp question var
-	size_t x;	// categorie counter
-	size_t y;	// question counter
-	size_t z;	// tmp cursor for question list
-	size_t r;	// number of correct answers
-
+	size_t *r_categories;	// random sequence of question catalogs (categories)
+	size_t *r_question;	// random sequence of questions
+	question *q;		// temporary question
+	size_t c_count;		// question  catalog (categorie) counter
+	size_t q_count;		// question counter
+	size_t tmp;		// temporary cursor for question list
+	size_t correct;		// number of correct answers
+	size_t categorie;	//amount of question catalogs (categories) (set by Player)
+	size_t quest;		//amount of questions per categories (set by Player)
+	
 	// intialize correct answer counter
-	r = 0;
+	correct = 0;
+	
+	cout << "Aus wie vielen Kategorien sollen die Fragen ausgesucht werden?" << endl;
+	cin >> categorie;
+	cout << "Wie viele Fragen möchtest du je categorie?" << endl;
+	cin >> quest;
+	
+	// if there are not enough categories adjust "categorie"
+	if (categorie > qsac) categorie = qsac;
+	
+	// get a random sequence from the question catalog loaded
+	r_categories = randSequence(categorie, qsac);
 
-	// if there are no enough categories adjust cc
-	if (cc > qsac) cc = qsac;
+	// ask for all the question catalogs
+	for (c_count = 0; c_count < categorie; c_count++) {
 
-	// get a random sequence from the categories loaded
-	ccr = randSequence(cc, qsac);
+		cout << "Kategorie: " << qsa[r_categories[c_count]]->topic << endl;
 
-	// ask for all the categories
-	for (x = 0; x < cc; x++) {
-
-		// display categorie header
-		cout << "Kategorie: " << qsa[ccr[x]]->t << endl;
-
-		// if there are not enough questions adjust cc
-		if (cq > qsa[ccr[x]]->c) cq = qsa[ccr[x]]->c;
-
+		// if there are not enough questions adjust "quest"
+		if (quest > qsa[r_categories[c_count]]->count) {
+		quest = qsa[r_categories[c_count]]->count;
+		}
+		
 		// get a random sequence of all the questions to ask
-		cqr = randSequence(cq, qsa[ccr[x]]->c);
+		r_question = randSequence(quest, qsa[r_categories[c_count]]->count);
 
-		// ask questions of this categorie
-		for(y = 0; y < cq; y++) {
+		// ask questions of this question catalog
+		for(q_count = 0; q_count < quest; q_count++) {
 
 			// scroll the question catalog to wanted question
-			q = qsa[ccr[x]]->first;
-			for(z = 0; z < cqr[y]; z++) {
+			q = qsa[r_categories[c_count]]->first;
+			for(tmp = 0; tmp < r_question[q_count]; tmp++) {
 				q = q->next;
 			}
-
-			r += ask(q);
-
+			correct += ask(q);
 		}
-
 	}
-	return r;
+	cout << endl << "==========================================" << endl;
+	cout << correct << " von " << quest*categorie << " richtig." << endl;
 }
-
 
 int main()
 {
 	questions *qs;		// single question catalog
 	questions *qsa[100];	// all the question catalogs (not more than 100)
 	size_t qsac;		// cursor of the question catalogs
-	size_t c; 		// tmp counter
-	size_t r;		// correct answer counter
 
 	// intialize counter
 	qsac = 0;
-	r = 0;
 
 	// read in of all the questions
 	qs = readQuestions("Computerspiele","./db/Computerspiele");
@@ -307,7 +304,9 @@ int main()
 
 	// MENU
 	// 1 Training
-	// 2 Zufalls Quiz
+	// 2 Zufalls Quiz 
+	//(Spieler sucht anzahl Kategorien/anzahl der Fragen je Kategorie aus) 
+	//(muss noch gmeacht werden)
 	// 3 Beenden
 
 	// TODO free all the questions to avoid memory leak
@@ -315,9 +314,7 @@ int main()
 	// prototype training
 
 	// prototype random quiz
-	r = randQuiz(qsa, qsac, 100, 100);
-	cout << endl << "==========================================" << endl;
-	cout << r << " von " << 3*3 << " richtig." << endl;
+	randQuiz(qsa, qsac);
 
 	cleanup(qsa, qsac);
 
