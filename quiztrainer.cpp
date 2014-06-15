@@ -332,7 +332,11 @@ int main()
 		qsa[qsac] = qs;
 		qsac++;
 	}
-	
+	qs = readQuestions("Mensch und Tier","./db/Mensch und Tier");
+	if (qs != 0) {
+		qsa[qsac] = qs;
+		qsac++;
+	}
 	// MENU
 	cout << "Suche aus und gebe die Zahl ein:" << endl;
 	cout << "Training (1)" << endl;
