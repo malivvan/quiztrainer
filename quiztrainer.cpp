@@ -183,7 +183,6 @@ size_t ask(question *q)
 		if (random_number[counter] == 2) cout << q->a3 << endl;
 		if (random_number[counter] == 3) cout << q->a4 << endl;
 	}
-	free(random_number);
 
 	// wait for valid response
 	cout << endl << "Bitte geben Sie eine Antwort (1-4) ein: ";
@@ -192,26 +191,16 @@ size_t ask(question *q)
 
 	if(random_number[answer-1] == 0){
 		cout << "richtig" << endl;
+		free(random_number);
 		return 1;
 	} else {
 		cout << "falsch, richtig ist: " << q->a1 << endl;
 	}
 	cout << endl;
-
+	
+	free(random_number);
 	return 0;
 }
-
-/*
- * training quiz mode - will return number of right answers
- *
- * qsa - all the questions
- * qsac - amount of question catalogs
- */
-size_t trainingQuiz(questions **qsa, size_t qsac)
-{
-	return 0;
-}
-
 
 /*
  * random quiz mode - will return number of right answers - will adjust cc and
@@ -236,10 +225,10 @@ size_t randQuiz(questions **qsa, size_t qsac)
 	
 	// intialize correct answer counter
 	correct = 0;
-	
+	cout << "Zufallsquiz" << endl;
 	cout << "Aus wie vielen Kategorien sollen die Fragen ausgesucht werden?" << endl;
 	cin >> categorie;
-	cout << "Wie viele Fragen möchtest du je categorie?" << endl;
+	cout << "Wie viele Fragen möchtest du je Kategorie?" << endl;
 	cin >> quest;
 	
 	// if there are not enough categories adjust "categorie"
@@ -276,11 +265,53 @@ size_t randQuiz(questions **qsa, size_t qsac)
 	cout << correct << " von " << quest*categorie << " richtig." << endl;
 }
 
+size_t trainingQuiz(questions **qsa, size_t qsac)
+{
+	size_t i;
+	size_t categorie;	// The categorie the player choosed
+	size_t *r_question;	// random Sequence for questions
+	question *q;		// temporary question
+	size_t tmp;		// temporary cursor for question list
+	size_t q_count;		// question counter
+	size_t right;		// 0 = answer wrong, 1 = answer right
+	size_t correct;		// amount of correct answers
+	
+	correct = 0;
+	
+	cout << "Training" << endl;
+	cout << "Suche eine Kategorie aus und gebe die Zahl dahinter ein" << endl;
+
+	for(i = 0; i < qsac; i++){
+		cout << qsa[i]->topic << " (" << i << ")" << endl;
+	}
+	
+	cin >> categorie;
+	
+	r_question = randSequence(qsa[categorie]->count, qsa[categorie]->count);
+	
+	for(q_count = 0; q_count < qsa[categorie]->count; q_count++) {
+		
+		q = qsa[categorie]->first;
+		
+			for(tmp = 0; tmp < r_question[q_count]; tmp++) {
+				q = q->next;
+			}
+			right = ask(q);
+			correct += right;
+			if (right == 0)break;
+		}
+	
+	cout << endl << "==========================================" << endl;
+	cout << correct << " richtige Antworten" << endl;
+		
+}
+
 int main()
 {
 	questions *qs;		// single question catalog
 	questions *qsa[100];	// all the question catalogs (not more than 100)
 	size_t qsac;		// cursor of the question catalogs
+	size_t selection;    	//Game player choosed
 
 	// intialize counter
 	qsac = 0;
@@ -301,21 +332,28 @@ int main()
 		qsa[qsac] = qs;
 		qsac++;
 	}
-
+	
 	// MENU
+	cout << "Suche aus und gebe die Zahl ein:" << endl;
+	cout << "Training (1)" << endl;
+	cout << "Zufalls Quiz (2)" << endl;
+	cout << "Beenden (3)" << endl;
+	cin >> selection;
 	// 1 Training
+	//Spieler sucht eine Kategorie aus und spielt, bis er 3 falsche hat
 	// 2 Zufalls Quiz 
-	//(Spieler sucht anzahl Kategorien/anzahl der Fragen je Kategorie aus) 
-	//(muss noch gmeacht werden)
-	// 3 Beenden
+	//Spieler sucht anzahl Kategorien/anzahl der Fragen je Kategorie aus
 
 	// TODO free all the questions to avoid memory leak
 
-	// prototype training
-
-	// prototype random quiz
-	randQuiz(qsa, qsac);
-
+	switch (selection){
+		case 1:	trainingQuiz(qsa, qsac);
+			break;
+		case 2:	randQuiz(qsa, qsac);
+			break;
+		case 3: break;
+		default: cout << "Bitte eine Zahl aussuchen" << endl;
+	}
 	cleanup(qsa, qsac);
 
 	return 0;
