@@ -67,7 +67,7 @@ size_t *randSequence(size_t lenght, size_t max)
 /*
  * read in of a question file
  */
-questions* readQuestions(char *name, char *path)
+questions *readQuestions(char *name, char *path)
 {
 	char *l;		// holder for converted cstring
 	char *tmp;		// holder for extracted part of cstring l
@@ -289,6 +289,7 @@ size_t trainingQuiz(questions **qsa, size_t qsac)
 	
 	r_question = randSequence(qsa[categorie]->count, qsa[categorie]->count);
 	
+	//gives queations as long as the player don't answers wrong
 	for(q_count = 0; q_count < qsa[categorie]->count; q_count++) {
 		
 		q = qsa[categorie]->first;
@@ -337,18 +338,25 @@ int main()
 		qsa[qsac] = qs;
 		qsac++;
 	}
+	
+	allegro_init();
+	install_keyboard();
+	set_color_depth(16);
+	set_gfx_mode(GFX_AUTODETECT, 640, 480,0,0);
+
+	while(key[59]==0);
+	
 	// MENU
 	cout << "Suche aus und gebe die Zahl ein:" << endl;
 	cout << "Training (1)" << endl;
 	cout << "Zufalls Quiz (2)" << endl;
 	cout << "Beenden (3)" << endl;
 	cin >> selection;
+	
 	// 1 Training
 	//Spieler sucht eine Kategorie aus und spielt, bis er 3 falsche hat
 	// 2 Zufalls Quiz 
 	//Spieler sucht anzahl Kategorien/anzahl der Fragen je Kategorie aus
-
-	// TODO free all the questions to avoid memory leak
 
 	switch (selection){
 		case 1:	trainingQuiz(qsa, qsac);
