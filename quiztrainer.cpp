@@ -339,13 +339,6 @@ int main()
 		qsac++;
 	}
 	
-	allegro_init();
-	install_keyboard();
-	set_color_depth(16);
-	set_gfx_mode(GFX_AUTODETECT, 640, 480,0,0);
-
-	while(key[59]==0);
-	
 	// MENU
 	cout << "Suche aus und gebe die Zahl ein:" << endl;
 	cout << "Training (1)" << endl;
